@@ -15,3 +15,6 @@
 /film-layout*.json
 /layout.json
 /filmmemory-*.jpeg
+
+# Local signing and build-profile inspection material
+/build-profile-inspect/
