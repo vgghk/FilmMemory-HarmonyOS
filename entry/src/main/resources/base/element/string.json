@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "记录每一卷胶片，珍藏每一刻光影"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "胶片记忆应用入口"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "胶片记忆"
+    }
+  ]
+}

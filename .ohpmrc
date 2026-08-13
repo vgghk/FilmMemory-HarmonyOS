@@ -1,0 +1,3 @@
+registry=https://ohpm.openharmony.cn/ohpm/
+strict_ssl=true
+cache=F:\HuaweiHarmony\Caches\ohpm
