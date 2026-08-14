@@ -16,6 +16,167 @@ const SCREEN_PREVIEW: string = 'preview';
 const SCREEN_DATE: string = 'date';
 const SCREEN_GALLERY: string = 'gallery';
 
+@Component
+struct ChoicePillControl {
+  @Prop label: string = '';
+  @Prop value: string = '';
+  @Link selectedValue: string;
+
+  build() {
+    Button() {
+      Text(this.label)
+        .fontSize(14)
+        .fontWeight(this.selectedValue === this.value ? FontWeight.Medium : FontWeight.Regular)
+        .fontColor(this.selectedValue === this.value ? FilmColors.ink : FilmColors.muted)
+    }
+      .backgroundColor(this.selectedValue === this.value ? FilmColors.primarySoft : FilmColors.surface)
+      .border({ width: 1, color: this.selectedValue === this.value ? FilmColors.primary : FilmColors.outline })
+      .borderRadius(FilmRadii.control)
+      .padding({ left: 16, right: 16, top: 11, bottom: 11 })
+      .stateEffect(true)
+      .onClick(() => this.selectedValue = this.value)
+  }
+}
+
+@Component
+struct LinkedTextField {
+  @Prop label: string = '';
+  @Prop placeholder: string = '';
+  @Link value: string;
+
+  build() {
+    Column({ space: 8 }) {
+      Text(this.label)
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(FilmColors.muted)
+      TextInput({ text: this.value, placeholder: this.placeholder })
+        .width('100%')
+        .height(52)
+        .fontSize(16)
+        .fontColor(FilmColors.ink)
+        .placeholderColor('#9AA8B4')
+        .backgroundColor(FilmColors.surface)
+        .border({ width: 1, color: FilmColors.outline })
+        .borderRadius(FilmRadii.control)
+        .padding({ left: 16, right: 16 })
+        .onChange((value: string) => this.value = value)
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+  }
+}
+
+@Component
+struct SearchChoiceInput {
+  @Prop label: string = '';
+  @Prop placeholder: string = '';
+  @Prop options: string[] = [];
+  @Link value: string;
+
+  private matches(): string[] {
+    const query = this.value.trim().toLowerCase();
+    if (query.length === 0) {
+      return this.options.slice(0, 5);
+    }
+    return this.options.filter((item: string) => item.toLowerCase().includes(query)).slice(0, 5);
+  }
+
+  build() {
+    Column({ space: 8 }) {
+      Text(this.label)
+        .fontSize(14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(FilmColors.muted)
+      TextInput({ text: this.value, placeholder: this.placeholder })
+        .width('100%')
+        .height(52)
+        .fontSize(16)
+        .fontColor(FilmColors.ink)
+        .placeholderColor('#9AA8B4')
+        .backgroundColor(FilmColors.surface)
+        .border({ width: 1, color: FilmColors.outline })
+        .borderRadius(FilmRadii.control)
+        .padding({ left: 16, right: 16 })
+        .onChange((value: string) => this.value = value)
+      Scroll() {
+        Row({ space: 8 }) {
+          ForEach(this.matches(), (item: string) => {
+            ChoicePillControl({ label: item, value: item, selectedValue: $value })
+          }, (item: string) => `${this.label}_${item}`)
+        }
+      }
+      .scrollable(ScrollDirection.Horizontal)
+      .scrollBar(BarState.Off)
+      .width('100%')
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+  }
+}
+
+@Component
+struct FilmPresetPicker {
+  @Link name: string;
+  @Link type: string;
+  @Link cover: string;
+
+  @Builder
+  private Cover(index: number) {
+    if (index === 0) {
+      Image($r('app.media.film_cover_0')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 1) {
+      Image($r('app.media.film_cover_1')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 2) {
+      Image($r('app.media.film_cover_2')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 3) {
+      Image($r('app.media.film_cover_3')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 4) {
+      Image($r('app.media.film_cover_4')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 5) {
+      Image($r('app.media.film_cover_5')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 6) {
+      Image($r('app.media.film_cover_6')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 7) {
+      Image($r('app.media.film_cover_7')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else if (index === 8) {
+      Image($r('app.media.film_cover_8')).width('100%').height(76).objectFit(ImageFit.Contain)
+    } else {
+      Image($r('app.media.film_cover_9')).width('100%').height(76).objectFit(ImageFit.Contain)
+    }
+  }
+
+  build() {
+    Scroll() {
+      Row({ space: 10 }) {
+        ForEach(FILM_PRESETS, (preset: FilmPreset) => {
+          Column({ space: 6 }) {
+            this.Cover(preset.coverIndex)
+            Text(preset.name)
+              .width('100%').fontSize(12).fontWeight(FontWeight.Medium).fontColor(FilmColors.ink)
+              .maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
+            Text(preset.type)
+              .width('100%').fontSize(11).fontColor(FilmColors.muted).maxLines(1)
+          }
+          .width(132)
+          .padding(8)
+          .backgroundColor(this.cover === presetCover(preset.coverIndex) ? FilmColors.primarySoft : FilmColors.surface)
+          .border({ width: 1, color: this.cover === presetCover(preset.coverIndex) ? FilmColors.primary : FilmColors.outline })
+          .borderRadius(FilmRadii.control)
+          .onClick(() => {
+            this.name = preset.name;
+            this.type = preset.type;
+            this.cover = presetCover(preset.coverIndex);
+          })
+        }, (preset: FilmPreset) => preset.name)
+      }
+    }
+    .scrollable(ScrollDirection.Horizontal)
+    .scrollBar(BarState.Off)
+    .width('100%')
+  }
+}
+
 @Entry
 @Component
 struct Index {
@@ -43,9 +204,24 @@ struct Index {
   @State formRevision: number = 0;
   @State dataRevision: number = 0;
   @State selectedStatus: string = STATUS_SHOOTING;
+  // Form controls use primitive state as their rendering source.  A Roll is a
+  // persistence model; keeping its mutable members as the only source caused
+  // ArkUI to postpone visual updates until the next page transition.
+  @State draftName: string = '';
+  @State draftType: string = FILM_TYPES[0];
+  @State draftDate: string = '';
+  @State draftCamera: string = '';
+  @State draftLens: string = '';
+  @State draftStatus: string = STATUS_SHOOTING;
+  @State draftCover: string = '';
   private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   async aboutToAppear(): Promise<void> {
+    // Returning from PhotoViewPicker foregrounds this page again. Reloading an
+    // active page can race the import callback and restore its old snapshot.
+    if (this.loaded) {
+      return;
+    }
     this.rolls = await FilmStore.load(this.context);
     const selected = this.rolls.find((roll: Roll) => roll.id === this.selectedId);
     if (selected) {
@@ -85,6 +261,7 @@ struct Index {
 
   private openNew(): void {
     this.draft = Roll.create();
+    this.syncDraftControlState();
     this.editing = false;
     this.formRevision += 1;
     this.screen = SCREEN_FORM;
@@ -92,6 +269,7 @@ struct Index {
 
   private openEdit(roll: Roll): void {
     this.draft = Roll.clone(roll);
+    this.syncDraftControlState();
     this.editing = true;
     this.formRevision += 1;
     this.screen = SCREEN_FORM;
@@ -158,12 +336,18 @@ struct Index {
   }
 
   private async saveDraft(): Promise<void> {
-    const name = this.draft.name.trim();
+    const name = this.draftName.trim();
     if (name.length === 0) {
       this.getUIContext().getPromptAction().showToast({ message: '请填写胶片名称' });
       return;
     }
     this.draft.name = name;
+    this.draft.type = this.draftType;
+    this.draft.date = this.draftDate;
+    this.draft.camera = this.draftCamera;
+    this.draft.lens = this.draftLens;
+    this.draft.status = this.draftStatus;
+    this.draft.cover = this.draftCover;
     this.draft.updatedAt = Date.now();
     if (this.editing) {
       await this.persist(this.rolls.map((roll: Roll) => roll.id === this.draft.id ? this.draft : roll));
@@ -244,11 +428,17 @@ struct Index {
       if (result.photoUris.length === 0) {
         return;
       }
+      // Continue from the latest roll after the system picker returns, not the
+      // object captured before it opened.
+      const activeRoll = this.rolls.find((item: Roll) => item.id === roll.id);
+      if (!activeRoll) {
+        return;
+      }
       const imported: string[] = [];
       let failed: number = 0;
       for (let index = 0; index < result.photoUris.length; index++) {
         const source = result.photoUris[index];
-        const destination = `${this.context.filesDir}/film_${roll.id}_${Date.now()}_${index}.jpg`;
+        const destination = `${this.context.filesDir}/film_${activeRoll.id}_${Date.now()}_${index}.jpg`;
         try {
           const displayName = await this.copySelectedPhoto(source, destination);
           const meta = fileIo.openSync(`${destination}.name`,
@@ -262,12 +452,15 @@ struct Index {
         }
       }
       if (imported.length > 0) {
-        const updated = Roll.clone(roll);
+        const updated = Roll.clone(activeRoll);
         updated.photos = this.sortPhotoPaths([...updated.photos, ...imported]);
         if (updated.cover.length === 0) {
           updated.cover = imported[0];
         }
         await this.updateRoll(updated);
+        this.selectedId = updated.id;
+        this.selectedStatus = updated.status;
+        this.screen = SCREEN_DETAIL;
         this.getUIContext().getPromptAction().showToast({ message: `已导入 ${imported.length} 张照片` });
       } else if (failed > 0) {
         this.getUIContext().showAlertDialog({
@@ -371,6 +564,13 @@ struct Index {
     }
   }
 
+  private imageSource(path: string): string {
+    if (path.startsWith('file://') || path.startsWith('datashare://')) {
+      return path;
+    }
+    return `file://${path}`;
+  }
+
   private sortPhotoPaths(paths: string[]): string[] {
     return paths.sort((left: string, right: string) =>
       this.photoName(left).localeCompare(this.photoName(right), 'zh-CN', { numeric: true, sensitivity: 'base' }));
@@ -414,6 +614,23 @@ struct Index {
     this.screen = SCREEN_PREVIEW;
   }
 
+  private movePreview(offset: number): void {
+    const roll = this.currentRoll();
+    if (!roll) {
+      return;
+    }
+    const next = Math.max(0, Math.min(roll.photos.length - 1, this.previewIndex + offset));
+    if (next === this.previewIndex) {
+      return;
+    }
+    this.previewIndex = next;
+    this.previewUri = roll.photos[next];
+    this.previewRotation = this.photoRotation(this.previewUri);
+    this.previewScale = 1;
+    this.previewOffsetX = 0;
+    this.previewOffsetY = 0;
+  }
+
   private goBack(): void {
     if (this.screen === SCREEN_PREVIEW) {
       this.screen = SCREEN_GALLERY;
@@ -443,7 +660,7 @@ struct Index {
 
   private openDatePicker(mode: string): void {
     this.getUIContext().getFocusController().clearFocus();
-    const parts = this.draft.date.split(new RegExp('\\s+[–-]\\s+'));
+    const parts = this.draftDate.split(new RegExp('\\s+[–-]\\s+'));
     const fallback = new Date();
     this.dateMode = mode;
     this.dateStart = this.parseDate(parts[0] ?? '') ?? fallback;
@@ -459,8 +676,35 @@ struct Index {
     } else {
       this.draft.date = this.formatDate(this.dateStart);
     }
-    this.draft = Roll.clone(this.draft);
+    this.draftDate = this.draft.date;
+    this.commitDraftChoice();
     this.screen = SCREEN_FORM;
+  }
+
+  private commitDraftChoice(): void {
+    // Roll is a custom class. Updating its fields alone does not consistently
+    // invalidate nested ArkUI builders, so selectable controls commit a fresh
+    // snapshot and advance the form key together.
+    this.draft = Roll.clone(this.draft);
+    this.formRevision += 1;
+  }
+
+  private syncDraftControlState(): void {
+    this.draftName = this.draft.name;
+    this.draftType = this.draft.type;
+    this.draftDate = this.draft.date;
+    this.draftCamera = this.draft.camera;
+    this.draftLens = this.draft.lens;
+    this.draftStatus = this.draft.status;
+    this.draftCover = this.draft.cover;
+  }
+
+  private matchedChoices(value: string, options: string[]): string[] {
+    const query = value.trim().toLowerCase();
+    if (query.length === 0) {
+      return options.slice(0, 5);
+    }
+    return options.filter((item: string) => item.toLowerCase().includes(query)).slice(0, 5);
   }
 
   @Builder
@@ -530,16 +774,20 @@ struct Index {
 
   @Builder
   private ChoicePill(label: string, selected: boolean, action: () => void) {
-    Button(label)
-      .fontSize(14)
-      .fontWeight(selected ? FontWeight.Medium : FontWeight.Regular)
-      .fontColor(selected ? FilmColors.ink : FilmColors.muted)
+    Button() {
+      Text(label)
+        .fontSize(14)
+        .fontWeight(selected ? FontWeight.Medium : FontWeight.Regular)
+        .fontColor(selected ? FilmColors.ink : FilmColors.muted)
+    }
       .backgroundColor(selected ? FilmColors.primarySoft : FilmColors.surface)
       .border({ width: 1, color: selected ? FilmColors.primary : FilmColors.outline })
       .borderRadius(FilmRadii.control)
       .padding({ left: 16, right: 16, top: 11, bottom: 11 })
       .stateEffect(true)
-      .onClick(action)
+      .enabled(true)
+      .id(`choice_${this.formRevision}_${label}`)
+      .onClick(() => action())
   }
 
   @Builder
@@ -620,6 +868,26 @@ struct Index {
   }
 
   @Builder
+  private SearchChoiceField(label: string, value: string, options: string[], placeholder: string,
+    change: (value: string) => void) {
+    Column({ space: 8 }) {
+      this.TextField(label, value, placeholder, change)
+      Scroll() {
+        Row({ space: 8 }) {
+          ForEach(this.matchedChoices(value, options), (item: string) => {
+            this.ChoicePill(item, value === item, () => change(item))
+          }, (item: string) => `${label}_${item}`)
+        }
+      }
+      .scrollable(ScrollDirection.Horizontal)
+      .scrollBar(BarState.Off)
+      .width('100%')
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+  }
+
+  @Builder
   private HeroCard() {
     Stack({ alignContent: Alignment.BottomStart }) {
       Column({ space: 12 }) {
@@ -691,7 +959,7 @@ struct Index {
       if (coverPresetIndex(roll.cover) >= 0) {
         this.PresetCover(coverPresetIndex(roll.cover), height)
       } else if (roll.cover.length > 0) {
-        Image(roll.cover)
+        Image(this.imageSource(roll.cover))
           .width('100%')
           .height('100%')
           .objectFit(ImageFit.Cover)
@@ -758,28 +1026,45 @@ struct Index {
     Column() {
       Scroll() {
         Column({ space: 16 }) {
-          this.PageHeader('胶片记忆')
-          Text('记录每卷胶片的慢时光')
-            .fontSize(14)
-            .fontColor(FilmColors.muted)
-            .width('100%')
-          this.PrimaryButton('+ 新增胶卷', () => this.openNew())
-          this.HeroCard()
-          Text('最近的胶卷')
-            .fontSize(20)
-            .fontWeight(FontWeight.Bold)
-            .fontColor(FilmColors.ink)
-            .width('100%')
+          Column({ space: 7 }) {
+            Text('胶片记忆')
+              .fontSize(34)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(FilmColors.ink)
+            Text('Film Memory')
+              .fontSize(20)
+              .fontWeight(FontWeight.Medium)
+              .fontColor(FilmColors.secondary)
+              .letterSpacing(1.4)
+            Text('记录每卷胶片的慢时光')
+              .fontSize(14)
+              .fontColor(FilmColors.muted)
+            this.PrimaryButton('+ 新增胶卷', () => this.openNew())
+          }
+          .width('100%')
+          .alignItems(HorizontalAlign.Start)
           Scroll() {
             Row({ space: 8 }) {
               ForEach(['全部', STATUS_SHOOTING, STATUS_FINISHED], (item: string) => {
-                this.ChoicePill(item, this.filter === item, () => this.filter = item)
+                ChoicePillControl({ label: item, value: item, selectedValue: $filter })
               })
             }
           }
           .scrollable(ScrollDirection.Horizontal)
           .scrollBar(BarState.Off)
           .width('100%')
+          Row() {
+            Text(this.filter === '全部' ? '全部胶卷' : this.filter)
+              .fontSize(21)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(FilmColors.ink)
+            Blank()
+            Text(`已冲洗 ${this.rolls.filter((roll: Roll) => roll.status === STATUS_FINISHED).length} 卷`)
+              .fontSize(13)
+              .fontColor(FilmColors.muted)
+          }
+          .width('100%')
+          .alignItems(VerticalAlign.Center)
           if (this.visibleRolls().length === 0) {
             this.EmptyRolls()
           } else {
@@ -806,121 +1091,26 @@ struct Index {
         Column({ space: 18 }) {
           this.PageHeader(this.editing ? '编辑胶卷' : '新增胶卷', true)
           this.FieldLabel('常用胶卷')
-          Scroll() {
-            Row({ space: 10 }) {
-              ForEach(FILM_PRESETS, (preset: FilmPreset) => {
-                Column({ space: 6 }) {
-                  this.PresetCover(preset.coverIndex, 86)
-                  Text(preset.name)
-                    .width('100%')
-                    .fontSize(12)
-                    .fontWeight(FontWeight.Medium)
-                    .fontColor(FilmColors.ink)
-                    .maxLines(1)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                  Text(preset.type)
-                    .width('100%')
-                    .fontSize(11)
-                    .fontColor(FilmColors.muted)
-                    .maxLines(1)
-                }
-                .width(132)
-                .padding(8)
-                .backgroundColor(this.draft.cover === presetCover(preset.coverIndex) ? FilmColors.primarySoft : FilmColors.surface)
-                .border({ width: 1, color: this.draft.cover === presetCover(preset.coverIndex) ? FilmColors.primary : FilmColors.outline })
-                .borderRadius(FilmRadii.control)
-                .onClick(() => {
-                  this.draft.name = preset.name;
-                  this.draft.type = preset.type;
-                  this.draft.cover = presetCover(preset.coverIndex);
-                  this.draft = Roll.clone(this.draft);
-                })
-              }, (preset: FilmPreset) => preset.name)
-            }
-          }
-          .scrollable(ScrollDirection.Horizontal)
-          .scrollBar(BarState.Off)
-          .width('100%')
-          Column({ space: 8 }) {
-            this.FieldLabel('胶片名称 *')
-            TextInput({ text: this.draft.name, placeholder: '例如 Kodak Portra 400' })
-              .id(`roll_name_${this.formRevision}_${this.draft.cover}`)
-              .width('100%')
-              .height(52)
-              .fontSize(16)
-              .fontColor(FilmColors.ink)
-              .placeholderColor('#9AA8B4')
-              .backgroundColor(FilmColors.surface)
-              .border({ width: 1, color: FilmColors.outline })
-              .borderRadius(FilmRadii.control)
-              .padding({ left: 16, right: 16 })
-              .onChange((value: string) => {
-                this.draft.name = value;
-                this.draft = Roll.clone(this.draft);
-              })
-          }
-          .width('100%')
-          .alignItems(HorizontalAlign.Start)
+          FilmPresetPicker({ name: $draftName, type: $draftType, cover: $draftCover })
+          LinkedTextField({ label: '胶片名称 *', placeholder: '例如 Kodak Portra 400', value: $draftName })
           this.FieldLabel('胶片类型')
           Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
             ForEach(FILM_TYPES, (item: string) => {
-              this.ChoicePill(item, this.draft.type === item, () => {
-                this.draft.type = item;
-                this.draft = Roll.clone(this.draft);
-              })
+              ChoicePillControl({ label: item, value: item, selectedValue: $draftType })
             })
           }
-          this.TextField('拍摄日期', this.draft.date, '2026.08.13 或 2026.08.13 - 2026.08.20', (value: string) => {
-            this.draft.date = value;
-            this.draft = Roll.clone(this.draft);
-          })
+          LinkedTextField({ label: '拍摄日期', placeholder: '2026.08.13 或 2026.08.13 - 2026.08.20', value: $draftDate })
           Row({ space: 8 }) {
-            this.ChoicePill('选择一天', this.draft.date.length > 0 && !this.draft.date.includes('–') && !this.draft.date.includes(' - '), () => this.openDatePicker('single'))
-            this.ChoicePill('今天', this.draft.date === this.formatDate(new Date()), () => {
-              const now = new Date();
-              this.draft.date = this.formatDate(now);
-              this.draft = Roll.clone(this.draft);
-            })
-            this.ChoicePill('日期范围', this.draft.date.includes('–') || this.draft.date.includes(' - '), () => this.openDatePicker('range'))
+            this.ChoicePill('选择一天', this.draftDate.length > 0 && !this.draftDate.includes('–') && !this.draftDate.includes(' - '), () => this.openDatePicker('single'))
+            ChoicePillControl({ label: '今天', value: this.formatDate(new Date()), selectedValue: $draftDate })
+            this.ChoicePill('日期范围', this.draftDate.includes('–') || this.draftDate.includes(' - '), () => this.openDatePicker('range'))
           }
           this.TextField('拍摄地点', this.draft.place, '例如 上海 · 武康路', (value: string) => {
             this.draft.place = value;
             this.draft = Roll.clone(this.draft);
           })
-          this.TextField('使用的相机', this.draft.camera, '例如 Leica M6', (value: string) => {
-            this.draft.camera = value;
-            this.draft = Roll.clone(this.draft);
-          })
-          Scroll() {
-            Row({ space: 8 }) {
-              ForEach(CAMERA_PRESETS.slice(0, 6), (item: string) => {
-                this.ChoicePill(item, this.draft.camera === item, () => {
-                  this.draft.camera = item;
-                  this.draft = Roll.clone(this.draft);
-                })
-              })
-            }
-          }
-          .scrollable(ScrollDirection.Horizontal)
-          .scrollBar(BarState.Off)
-          .width('100%')
-          this.TextField('镜头', this.draft.lens, '例如 50mm f/1.8', (value: string) => {
-            this.draft.lens = value;
-            this.draft = Roll.clone(this.draft);
-          })
-          Scroll() {
-            Row({ space: 8 }) {
-              ForEach(LENS_PRESETS.slice(0, 6), (item: string) => {
-                this.ChoicePill(item, this.draft.lens === item, () => {
-                  this.draft.lens = item;
-                  this.draft = Roll.clone(this.draft);
-                })
-              })
-            }
-          }
-          .scrollable(ScrollDirection.Horizontal)
-          .scrollBar(BarState.Off)
-          .width('100%')
+          SearchChoiceInput({ label: '使用的相机', placeholder: '例如 Leica M6', options: CAMERA_PRESETS, value: $draftCamera })
+          SearchChoiceInput({ label: '镜头', placeholder: '例如 50mm f/1.8', options: LENS_PRESETS, value: $draftLens })
           Column({ space: 8 }) {
             this.FieldLabel('备注')
             TextArea({ text: this.draft.note, placeholder: '记录天气、心情或这卷胶片的故事' })
@@ -940,16 +1130,10 @@ struct Index {
           .alignItems(HorizontalAlign.Start)
           this.FieldLabel('状态')
           Row({ space: 8 }) {
-            this.ChoicePill(STATUS_SHOOTING, this.draft.status === STATUS_SHOOTING, () => {
-              this.draft.status = STATUS_SHOOTING;
-              this.draft = Roll.clone(this.draft);
-            })
-            this.ChoicePill(STATUS_FINISHED, this.draft.status === STATUS_FINISHED, () => {
-              this.draft.status = STATUS_FINISHED;
-              this.draft = Roll.clone(this.draft);
-            })
+            ChoicePillControl({ label: STATUS_SHOOTING, value: STATUS_SHOOTING, selectedValue: $draftStatus })
+            ChoicePillControl({ label: STATUS_FINISHED, value: STATUS_FINISHED, selectedValue: $draftStatus })
           }
-          if (this.draft.status === STATUS_FINISHED) {
+          if (this.draftStatus === STATUS_FINISHED) {
             Column({ space: 14 }) {
               this.FieldLabel('冲洗信息')
               this.TextField('冲洗店', this.draft.lab, '例如 某某冲洗店', (value: string) => {
@@ -972,7 +1156,11 @@ struct Index {
             .border({ width: 1, color: FilmColors.outline })
             .borderRadius(FilmRadii.card)
           }
-          this.PrimaryButton('保存这卷胶片', () => this.saveDraft(), this.draft.name.trim().length > 0)
+          if (this.draftName.trim().length > 0) {
+            this.PrimaryButton('保存这卷胶片', () => this.saveDraft(), true)
+          } else {
+            this.PrimaryButton('保存这卷胶片', () => this.saveDraft(), false)
+          }
         }
         .width('100%')
         .padding({ left: 16, right: 16, top: 18, bottom: 40 })
@@ -981,6 +1169,7 @@ struct Index {
       .width('100%')
       .height('100%')
     }
+    .id(`form_${this.formRevision}`)
   }
 
   @Builder
@@ -994,12 +1183,8 @@ struct Index {
             .fontColor(FilmColors.muted)
             .width('100%')
           Row({ space: 8 }) {
-            this.ChoicePill('某一天', this.dateMode === 'single', () => {
-              this.dateMode = 'single';
-            })
-            this.ChoicePill('一段时间', this.dateMode === 'range', () => {
-              this.dateMode = 'range';
-            })
+            ChoicePillControl({ label: '某一天', value: 'single', selectedValue: $dateMode })
+            ChoicePillControl({ label: '一段时间', value: 'range', selectedValue: $dateMode })
           }
           Column({ space: 10 }) {
             this.FieldLabel(this.dateMode === 'range' ? '开始日期' : '拍摄日期')
@@ -1086,22 +1271,16 @@ struct Index {
   private PhotoGrid(roll: Roll) {
     Column({ space: 12 }) {
       Row() {
-        Column({ space: 3 }) {
-          Text('这一卷的照片')
-            .fontSize(20)
-            .fontWeight(FontWeight.Bold)
-            .fontColor(FilmColors.ink)
-          Text(`${roll.photos.length} 张`)
-            .fontSize(13)
-            .fontColor(FilmColors.muted)
-        }
-        .alignItems(HorizontalAlign.Start)
-        .layoutWeight(1)
+        Text(`已导入 ${roll.photos.length} 张`)
+          .fontSize(14)
+          .fontColor(FilmColors.muted)
+          .layoutWeight(1)
         if (roll.photos.length > 0) {
-          this.IconTextButton($r('sys.symbol.ohos_photo'), '查看图库', () => this.openGallery(roll, SCREEN_DETAIL))
-        }
-        if (roll.status === STATUS_FINISHED) {
-          this.IconTextButton($r('sys.symbol.ohos_folder_badge_plus'), '添加照片', () => this.pickPhotos())
+          Button('查看图库')
+            .fontSize(14)
+            .fontColor(FilmColors.primary)
+            .backgroundColor(Color.Transparent)
+            .onClick(() => this.openGallery(roll, SCREEN_DETAIL))
         }
       }
       .width('100%')
@@ -1122,33 +1301,49 @@ struct Index {
         .border({ width: 1, color: FilmColors.outline })
         .borderRadius(FilmRadii.card)
       } else {
-        Grid() {
-          ForEach(roll.photos, (uri: string) => {
-            GridItem() {
-              Image(uri)
-                .width('100%')
-                .height(164)
-                .objectFit(ImageFit.Cover)
-                .borderRadius(FilmRadii.image)
-                .onClick(() => {
-                  this.openPreview(roll.photos.indexOf(uri));
-                })
-            }
-          }, (uri: string) => uri)
+        Row({ space: 14 }) {
+          Column() {
+            this.AppIcon($r('sys.symbol.ohos_photo'), '打开照片图库', FilmColors.primary, 26)
+          }
+          .width(52)
+          .height(52)
+          .justifyContent(FlexAlign.Center)
+          .alignItems(HorizontalAlign.Center)
+          .backgroundColor(FilmColors.primarySoft)
+          .borderRadius(16)
+          Column({ space: 3 }) {
+            Text('打开照片图库')
+              .fontSize(16)
+              .fontWeight(FontWeight.Medium)
+              .fontColor(FilmColors.ink)
+            Text(`${roll.photos.length} 张 · 可放大、拖动和左右浏览`)
+              .fontSize(12)
+              .fontColor(FilmColors.muted)
+          }
+          .layoutWeight(1)
+          .alignItems(HorizontalAlign.Start)
+          this.AppIcon($r('sys.symbol.chevron_right'), '进入图库', FilmColors.primary, 20)
         }
-        .columnsTemplate('1fr 1fr')
-        .columnsGap(10)
-        .rowsGap(10)
-        .height(Math.ceil(roll.photos.length / 2) * 174)
         .width('100%')
+        .height(88)
+        .padding({ left: 18, right: 18 })
+        .backgroundColor(FilmColors.surface)
+        .border({ width: 1, color: FilmColors.outline })
+        .borderRadius(FilmRadii.control)
+        .onClick(() => this.openGallery(roll, SCREEN_DETAIL))
       }
       if (roll.status !== STATUS_FINISHED) {
         Text('拍摄中不可导入照片，完成冲洗后可随时添加。').fontSize(12).fontColor(FilmColors.muted)
       } else if (roll.photos.length >= 50) {
         Text('这卷胶片已达到 50 张照片上限。').fontSize(12).fontColor(FilmColors.muted)
-      } else if (roll.photos.length > 0) {
-        Text(`还可导入 ${50 - roll.photos.length} 张照片`).fontSize(12).fontColor(FilmColors.muted)
       }
+      this.PrimaryButton(
+        roll.status !== STATUS_FINISHED ? '冲洗完成后可导入' :
+          (roll.photos.length >= 50 ? '已达到 50 张上限' :
+            (roll.photos.length === 0 ? '导入照片' : `继续添加照片（还可导入 ${50 - roll.photos.length} 张）`)),
+        () => this.pickPhotos(),
+        roll.status === STATUS_FINISHED && roll.photos.length < 50
+      )
     }
     .width('100%')
     .alignItems(HorizontalAlign.Start)
@@ -1194,7 +1389,7 @@ struct Index {
                       Text('FILM 400').fontSize(9).fontColor('#B26B34')
                     }.width('100%')
                     Stack({ alignContent: Alignment.TopEnd }) {
-                      Image(uri).width(218).height(146).objectFit(ImageFit.Cover)
+                      Image(this.imageSource(uri)).width(218).height(146).objectFit(ImageFit.Cover)
                         .rotate({ angle: this.photoRotation(uri) })
                       if ((this.currentRoll() as Roll).cover === uri) {
                         this.AppIcon($r('sys.symbol.checkmark_circle_fill'), '封面', FilmColors.primary, 22)
@@ -1219,9 +1414,13 @@ struct Index {
             Grid() {
               ForEach((this.currentRoll() as Roll).photos, (uri: string, index: number) => {
                 GridItem() {
-                  Image(uri).width('100%').height(94).objectFit(ImageFit.Cover).borderRadius(10)
-                    .rotate({ angle: this.photoRotation(uri) })
-                    .onClick(() => this.openPreview(index))
+                  Button() {
+                    Image(this.imageSource(uri)).width('100%').height(94).objectFit(ImageFit.Cover).borderRadius(10)
+                      .rotate({ angle: this.photoRotation(uri) })
+                  }
+                  .width('100%').height(94).padding(0).backgroundColor(Color.Transparent)
+                  .stateEffect(true)
+                  .onClick(() => this.openPreview(index))
                 }
               }, (uri: string) => `thumb_${uri}`)
             }
@@ -1362,53 +1561,43 @@ struct Index {
   private PreviewPage() {
     Stack({ alignContent: Alignment.TopStart }) {
       if (this.currentRoll()) {
-        Swiper() {
-          ForEach((this.currentRoll() as Roll).photos, (uri: string) => {
-            Image(uri)
-              .width('100%').height('100%').objectFit(ImageFit.Contain)
-              .rotate({ angle: uri === this.previewUri ? this.previewRotation : this.photoRotation(uri) })
-              .scale({ x: uri === this.previewUri ? this.previewScale : 1, y: uri === this.previewUri ? this.previewScale : 1 })
-              .translate({ x: uri === this.previewUri ? this.previewOffsetX : 0, y: uri === this.previewUri ? this.previewOffsetY : 0 })
-              .onClick(() => this.previewControls = !this.previewControls)
-              .gesture(
-                GestureGroup(GestureMode.Parallel,
-                  PinchGesture({ fingers: 2 })
-                    .onActionStart(() => this.previewBaseScale = this.previewScale)
-                    .onActionUpdate((event: GestureEvent) => {
-                      this.previewScale = Math.max(1, Math.min(4, this.previewBaseScale * event.scale));
-                      if (this.previewScale === 1) {
-                        this.previewOffsetX = 0;
-                        this.previewOffsetY = 0;
-                      }
-                    }),
-                  PanGesture({ fingers: 1, direction: PanDirection.All })
-                    .onActionStart(() => {
-                      this.previewBaseX = this.previewOffsetX;
-                      this.previewBaseY = this.previewOffsetY;
-                    })
-                    .onActionUpdate((event: GestureEvent) => {
-                      if (this.previewScale > 1) {
-                        this.previewOffsetX = this.previewBaseX + event.offsetX;
-                        this.previewOffsetY = this.previewBaseY + event.offsetY;
-                      }
-                    })
-                )
-              )
-          }, (uri: string) => `preview_${uri}`)
-        }
-        .index(this.previewIndex).loop(false).indicator(false)
-        .disableSwipe(this.previewScale > 1.01).width('100%').height('100%')
-        .onChange((index: number) => {
-          const roll = this.currentRoll() as Roll;
-          this.previewIndex = index;
-          this.previewUri = roll.photos[index];
-          this.previewRotation = this.photoRotation(this.previewUri);
-          this.previewScale = 1;
-          this.previewOffsetX = 0;
-          this.previewOffsetY = 0;
-        })
+        Image(this.imageSource(this.previewUri))
+          .width('100%').height('100%').objectFit(ImageFit.Contain)
+          .rotate({ angle: this.previewRotation })
+          .scale({ x: this.previewScale, y: this.previewScale })
+          .translate({ x: this.previewOffsetX, y: this.previewOffsetY })
+          .onClick(() => this.previewControls = !this.previewControls)
+          .gesture(
+            GestureGroup(GestureMode.Parallel,
+              PinchGesture({ fingers: 2 })
+                .onActionStart(() => this.previewBaseScale = this.previewScale)
+                .onActionUpdate((event: GestureEvent) => {
+                  this.previewScale = Math.max(1, Math.min(4, this.previewBaseScale * event.scale));
+                  if (this.previewScale === 1) {
+                    this.previewOffsetX = 0;
+                    this.previewOffsetY = 0;
+                  }
+                }),
+              PanGesture({ fingers: 1, direction: PanDirection.All })
+                .onActionStart(() => {
+                  this.previewBaseX = this.previewOffsetX;
+                  this.previewBaseY = this.previewOffsetY;
+                })
+                .onActionUpdate((event: GestureEvent) => {
+                  if (this.previewScale > 1) {
+                    this.previewOffsetX = this.previewBaseX + event.offsetX;
+                    this.previewOffsetY = this.previewBaseY + event.offsetY;
+                  }
+                })
+                .onActionEnd((event: GestureEvent) => {
+                  if (this.previewScale <= 1.01 && Math.abs(event.offsetX) > 60) {
+                    this.movePreview(event.offsetX < 0 ? 1 : -1);
+                  }
+                })
+            )
+          )
       }
-      if (this.previewControls) {
+      if (this.previewControls && this.currentRoll()) {
         Row() {
           Button() {
             this.AppIcon($r('sys.symbol.chevron_left'), '返回图库', FilmColors.white, 23)
@@ -1437,6 +1626,7 @@ struct Index {
             .borderRadius(FilmRadii.control).onClick(() => this.deletePhoto(this.previewUri))
         }
         .width('100%').padding({ left: 12, right: 12, top: 18 })
+        .zIndex(10)
       }
     }
     .width('100%')
@@ -1459,7 +1649,12 @@ struct Index {
       } else if (this.screen === SCREEN_HOME) {
         this.HomePage()
       } else if (this.screen === SCREEN_FORM) {
-        this.FormPage()
+        // Keep the form revision in the root build dependency graph.  ArkUI
+        // otherwise defers rebuilding a nested @Builder that only reads fields
+        // from a mutable custom class until another screen transition occurs.
+        if (this.formRevision >= 0) {
+          this.FormPage()
+        }
       } else if (this.screen === SCREEN_DATE) {
         this.DateSelectionPage()
       } else if (this.screen === SCREEN_GALLERY) {

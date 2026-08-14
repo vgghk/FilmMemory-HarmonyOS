@@ -1,6 +1,7 @@
 export const STATUS_SHOOTING: string = '拍摄中';
 export const STATUS_FINISHED: string = '冲洗完';
 
+@Observed
 export class Roll {
   id: string = '';
   name: string = '';

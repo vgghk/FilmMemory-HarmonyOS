@@ -18,3 +18,4 @@
 
 # Local signing and build-profile inspection material
 /build-profile-inspect/
+/build-device/
