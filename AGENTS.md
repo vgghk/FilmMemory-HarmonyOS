@@ -23,7 +23,7 @@ This repository contains the native HarmonyOS edition of FilmMemory, a local-fir
 - Never commit local dependencies, IDE state, build outputs, signing materials, debug captures, layout exports, or screenshots.
 - Before each commit, inspect `git status` and stage only files belonging to the intended change.
 - At the start of every conversation, before changing any file, create a recoverable backup of that file. Prefer the current Git revision or a timestamped backup under `.git`; do not place backup copies in source directories.
-- After each intentional change, commit the focused diff and push this HarmonyOS repository to GitHub before handing work back.
+- Commit policy: DeepSeek commits locally only and does not push to GitHub. ChatGPT is unchanged and still commits and pushes this HarmonyOS repository to GitHub before handing work back.
 - Android and HarmonyOS are separate repositories. Only sync HarmonyOS changes from this directory; never add Android files or nested-repository metadata.
 
 ## Build
